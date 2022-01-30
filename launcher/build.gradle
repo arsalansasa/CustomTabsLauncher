@@ -23,7 +23,7 @@ android {
 }
 
 dependencies {
-    api "https://github.com/arsalansasa/custom-tabs-client.git"
+    api "com.github.arsalansasa:custom-tabs-client:master-SNAPSHOT"
 }
 
 afterEvaluate {
