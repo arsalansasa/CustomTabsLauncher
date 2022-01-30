@@ -23,7 +23,7 @@ android {
 }
 
 dependencies {
-    api "androidx.browser:browser:$androidx.browserVersion"
+    api "https://github.com/arsalansasa/custom-tabs-client.git:master-SNAPSHOT"
 }
 
 afterEvaluate {
