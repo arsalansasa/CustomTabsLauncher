@@ -16,6 +16,7 @@ import android.content.pm.ResolveInfo
 import android.content.pm.PackageManager
 import androidx.browser.customtabs.CustomTabsService
 import android.content.IntentFilter
+import android.content.pm.PackageManager.MATCH_ALL
 import android.util.Log
 import java.lang.RuntimeException
 
@@ -58,7 +59,7 @@ internal class CustomTabsLauncherImpl {
         // Get all apps that can handle VIEW intents.
 
         // Get all apps that can handle VIEW intents.
-        val resolvedActivityList = pm.queryIntentActivities(activityIntent, 0)
+        val resolvedActivityList = pm.queryIntentActivities(activityIntent,MATCH_ALL )
         val packagesSupportingCustomTabs: MutableList<String> = ArrayList()
         for (info in resolvedActivityList) {
             val serviceIntent = Intent()
@@ -82,16 +83,22 @@ internal class CustomTabsLauncherImpl {
         // and service calls.
         if (packagesSupportingCustomTabs.contains(STABLE_PACKAGE)) {
             sPackageNameToUse = STABLE_PACKAGE
+            return sPackageNameToUse
         } else if (packagesSupportingCustomTabs.contains(BETA_PACKAGE)) {
             sPackageNameToUse = BETA_PACKAGE
+            return sPackageNameToUse
         } else if (packagesSupportingCustomTabs.contains(DEV_PACKAGE)) {
             sPackageNameToUse = DEV_PACKAGE
+            return sPackageNameToUse
         } else if (packagesSupportingCustomTabs.contains(LOCAL_PACKAGE)) {
             sPackageNameToUse = LOCAL_PACKAGE
+            return sPackageNameToUse
         } else if (packagesSupportingCustomTabs.isEmpty()) {
             sPackageNameToUse = STABLE_PACKAGE
+            return sPackageNameToUse
         } else if (packagesSupportingCustomTabs.size == 1) {
             sPackageNameToUse = packagesSupportingCustomTabs[0]
+            return sPackageNameToUse
         } else if (!TextUtils.isEmpty(defaultViewHandlerPackageName)
                 && !hasSpecializedHandlerIntents(context, activityIntent)
                 && packagesSupportingCustomTabs.contains(defaultViewHandlerPackageName)) {
