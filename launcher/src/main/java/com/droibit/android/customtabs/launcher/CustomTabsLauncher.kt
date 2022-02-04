@@ -44,8 +44,8 @@ object CustomTabsLauncher {
             customTabsIntent: CustomTabsIntent,
             uri: Uri,
             fallback: CustomTabsFallback? = null
-    ) {
-        IMPL.launch(context, customTabsIntent, uri, CHROME_PACKAGES, fallback)
+    ) :String{
+        return IMPL.launch(context, customTabsIntent, uri, CHROME_PACKAGES, fallback)
     }
 
     /**

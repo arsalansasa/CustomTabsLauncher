@@ -27,6 +27,7 @@ internal class CustomTabsLauncherImpl {
     val DEV_PACKAGE = "com.chrome.dev"
     val LOCAL_PACKAGE = "com.google.android.apps.chrome"
     private val TAG = "CustomTabsLauncherImpl"
+    var DEBUG_LOGS = ""
 
     fun launch(
         context: Context,
@@ -34,14 +35,20 @@ internal class CustomTabsLauncherImpl {
         uri: Uri,
         expectCustomTabsPackages: List<String>,
         fallback: CustomTabsFallback?
-    ) {
+    ):String {
         val customTabsPackage = customGetPackageName(context)
+        DEBUG_LOGS += "Getting browser packages finished\n"
+
         if (customTabsPackage == null && fallback != null) {
+            DEBUG_LOGS += "No usable package found, Launching with webview\n"
             fallback.openUrl(context, uri, customTabsIntent)
-            return
+            return DEBUG_LOGS
         }
+        DEBUG_LOGS += "$customTabsPackage used as browser\n"
+        Log.e(TAG,DEBUG_LOGS)
         customTabsIntent.intent.setPackage(customTabsPackage)
         customTabsIntent.launchUrl(context, uri)
+        return DEBUG_LOGS
     }
 
     fun customGetPackageName(context:Context) : String? {
@@ -54,11 +61,13 @@ internal class CustomTabsLauncherImpl {
         var defaultViewHandlerPackageName: String? = null
         if (defaultViewHandlerInfo != null) {
             defaultViewHandlerPackageName = defaultViewHandlerInfo.activityInfo.packageName
+            DEBUG_LOGS += "$defaultViewHandlerPackageName is set as default browser\n"
         }
 
         // Get all apps that can handle VIEW intents.
 
         // Get all apps that can handle VIEW intents.
+        DEBUG_LOGS += "Resolving other accessible browsers\n"
         val resolvedActivityList = pm.queryIntentActivities(activityIntent,MATCH_ALL )
         val packagesSupportingCustomTabs: MutableList<String> = ArrayList()
         for (info in resolvedActivityList) {
@@ -67,14 +76,19 @@ internal class CustomTabsLauncherImpl {
             serviceIntent.setPackage(info.activityInfo.packageName)
             if (pm.resolveService(serviceIntent, 0) != null) {
                 packagesSupportingCustomTabs.add(info.activityInfo.packageName)
+                DEBUG_LOGS += "${info.activityInfo.packageName} added to list of Custom Tabs\n"
+            } else {
+                DEBUG_LOGS += "${info.activityInfo.packageName} can't be used as Custom Tabs\n"
             }
         }
 
         if (defaultViewHandlerPackageName == "com.sec.android.app.sbrowser"){
             defaultViewHandlerPackageName = STABLE_PACKAGE
+            DEBUG_LOGS += "Changed default samsung browser to $STABLE_PACKAGE\n"
         }
         if(packagesSupportingCustomTabs.contains("com.sec.android.app.sbrowser")){
             packagesSupportingCustomTabs.remove("com.sec.android.app.sbrowser")
+            DEBUG_LOGS += "Removed samsung browser from list of options\n"
         }
         // Now packagesSupportingCustomTabs contains all apps that can handle both VIEW intents
         // and service calls.
